@@ -13,6 +13,7 @@ import View from '../View';
 import ViewPropTypes from '../ViewPropTypes';
 import React, { Component } from 'react';
 import { bool, func, number } from 'prop-types';
+import ReactDOM from 'react-dom';
 
 const normalizeScrollEvent = e => ({
   nativeEvent: {
@@ -84,6 +85,7 @@ export default class ScrollViewBase extends Component<*> {
     const {
       scrollEnabled,
       style,
+      children,
       /* eslint-disable */
       alwaysBounceHorizontal,
       alwaysBounceVertical,
@@ -121,18 +123,36 @@ export default class ScrollViewBase extends Component<*> {
       /* eslint-enable */
       ...other
     } = this.props;
-
+    let newChildren = children;
+    const topPlaceholder = (<div style={{width:'1px',height:'1px'}}/>);
+    if(React.isValidElement(children)){
+      const contentChildren  = children.props.children;
+      if(React.Children.count(contentChildren)===1){
+        newChildren = React.cloneElement(children,{},[topPlaceholder,contentChildren,topPlaceholder])
+      }else if(React.Children.count(contentChildren)>1){
+        newChildren = React.cloneElement(children,{},[topPlaceholder,...contentChildren,topPlaceholder])
+      }
+    }
+    other.children = newChildren;
     return (
       <View
         {...other}
         onScroll={this._handleScroll}
         onTouchMove={this._createPreventableScrollHandler(this.props.onTouchMove)}
+        onTouchStart={this._onTouchStart(this.props.onTouchStart)}
         onWheel={this._createPreventableScrollHandler(this.props.onWheel)}
         ref={this._setViewRef}
         style={StyleSheet.compose(style, !scrollEnabled && styles.scrollDisabled)}
       />
     );
   }
+
+  _onTouchStart = (handler: Function) => {
+    return (e: Object) => {
+      this._changeTop();
+      handler(e);
+    };
+  };
 
   _createPreventableScrollHandler = (handler: Function) => {
     return (e: Object) => {
@@ -162,6 +182,7 @@ export default class ScrollViewBase extends Component<*> {
       // Weren't scrolling, so we must have just started
       this._handleScrollStart(e);
     }
+    this._changeTop();
   };
 
   _handleScrollStart(e: Object) {
@@ -187,6 +208,19 @@ export default class ScrollViewBase extends Component<*> {
 
   _setViewRef = (element: View) => {
     this._viewRef = element;
+    this._viewDom = ReactDOM.findDOMNode(this._viewRef);
+    this._changeTop();
+  };
+
+  _changeTop = () => {
+    const top = this._viewDom.scrollTop;
+    const totalScroll = this._viewDom.scrollHeight;
+    const currentScroll = top + this._viewDom.offsetHeight;
+    if (top === 0) {
+      this._viewDom.scrollTop = 1;
+    } else if (currentScroll === totalScroll) {
+      this._viewDom.scrollTop = top - 1;
+    }
   };
 
   _shouldEmitScrollEvent(lastTick: number, eventThrottle: number) {
