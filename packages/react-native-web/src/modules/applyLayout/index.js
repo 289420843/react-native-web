@@ -63,14 +63,15 @@ const observe = instance => {
 };
 
 const unobserve = instance => {
-  delete registry[instance._layoutId];
   if (resizeObserver) {
     const node = findNodeHandle(instance);
     if (node) {
+      delete registry[node._layoutId];
       delete node._layoutId;
       resizeObserver.unobserve(node);
     }
   } else {
+    delete registry[instance._layoutId];
     delete instance._layoutId;
   }
 };
@@ -97,7 +98,9 @@ const applyLayout = Component => {
     function componentDidMount() {
       this._layoutState = emptyObject;
       this._isMounted = true;
-      observe(this);
+      if (this.props.onLayout) {
+        observe(this);
+      }
     }
   );
 
@@ -116,7 +119,9 @@ const applyLayout = Component => {
     componentWillUnmount,
     function componentWillUnmount() {
       this._isMounted = false;
-      unobserve(this);
+      if (this.props.onLayout) {
+        unobserve(this);
+      }
     }
   );
 
