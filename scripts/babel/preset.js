@@ -30,7 +30,7 @@ const createConfig = ({ modules }) => ({
   plugins: [
     ['babel-plugin-transform-class-properties', { loose: true }],
     ['babel-plugin-transform-object-rest-spread', { useBuiltIns: true }],
-    ['babel-plugin-transform-react-remove-prop-types', { mode: 'wrap' }]
+    ['babel-plugin-transform-react-remove-prop-types', { mode: 'remove' }]
   ].concat(modules ? ['babel-plugin-add-module-exports'] : [])
 });
 

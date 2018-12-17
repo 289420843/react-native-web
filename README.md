@@ -23,10 +23,11 @@ React Native for Web can also render to HTML and critical CSS on the server
 using Node.js.
 
 Who is using React Native in production web apps?
-[Twitter](https://mobile.twitter.com), [Major League
-Soccer](https://matchcenter.mlssoccer.com),
-[Flipkart](https://www.flipkart.com/), Uber, [The
-Times](https://github.com/newsuk/times-components).
+[Twitter](https://mobile.twitter.com),
+[Major League Soccer](https://matchcenter.mlssoccer.com),
+[Flipkart](https://twitter.com/naqvitalha/status/969577892991549440),
+[Uber](https://www.youtube.com/watch?v=RV9rxrNIxnY),
+[The Times](https://github.com/newsuk/times-components), [DataCamp](https://www.datacamp.com/community/tech/porting-practice-to-web-part1).
 
 Browser support: Chrome, Firefox, Edge, Safari 7+, IE 10+.
 
@@ -74,8 +75,8 @@ recipes" guide.
 Examples of using React Native for Web with other web tools:
 
 * [Docz](https://github.com/pedronauck/docz-plugin-react-native)
-* [Gatsby](https://github.com/gatsbyjs/gatsby/tree/master/examples/using-react-native-web)
-* [Next.js](https://github.com/zeit/next.js/tree/master/examples/with-react-native-web)
+* [Gatsby](https://github.com/slorber/gatsby-plugin-react-native-web)
+* [Next.js](https://github.com/zeit/next.js/tree/master/examples/with-react-native-web) (and [example recipes](https://gist.github.com/necolas/f9034091723f1b279be86c7429eb0c96))
 * [Phenomic](https://github.com/phenomic/phenomic/tree/master/examples/react-native-web-app)
 * [Razzle](https://github.com/jaredpalmer/razzle/tree/master/examples/with-react-native-web)
 * [Storybook](https://github.com/necolas/react-native-web/tree/master/packages/website/storybook/.storybook)

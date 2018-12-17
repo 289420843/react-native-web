@@ -410,7 +410,7 @@ class VirtualizedList extends React.PureComponent<Props, State> {
   }
 
   static defaultProps = {
-    disableVirtualization: false,
+    disableVirtualization: process.env.NODE_ENV === 'test',
     horizontal: false,
     initialNumToRender: 10,
     keyExtractor: (item: Item, index: number) => {
@@ -1561,7 +1561,7 @@ class CellRenderer extends React.Component<
       getItemLayout?: ?Function,
       renderItem: renderItemType,
     },
-    prevCellKey: ?string,
+    prevCellKey: ?string
   },
   $FlowFixMeState,
 > {
@@ -1649,9 +1649,9 @@ class CellRenderer extends React.Component<
     );
     const cellStyle = inversionStyle
       ? horizontal
-        ? [{flexDirection: 'row-reverse'}, inversionStyle]
-        : [{flexDirection: 'column-reverse'}, inversionStyle]
-      : horizontal ? [{flexDirection: 'row'}, inversionStyle] : inversionStyle;
+        ? [styles.rowReverse, inversionStyle]
+        : [styles.columnReverse, inversionStyle]
+      : horizontal ? [styles.row, inversionStyle] : inversionStyle;
     if (!CellRendererComponent) {
       return (
         <View style={cellStyle} onLayout={onLayout}>
@@ -1702,6 +1702,15 @@ const styles = StyleSheet.create({
   horizontallyInverted: {
     transform: [{scaleX: -1}],
   },
+  row: {
+    flexDirection: 'row'
+  },
+  rowReverse: {
+    flexDirection: 'row-reverse'
+  },
+  columnReverse: {
+    flexDirection: 'column-reverse'
+  }
 });
 
 export default VirtualizedList;
