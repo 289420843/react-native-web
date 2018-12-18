@@ -8,6 +8,8 @@ const getDistLocation = (importName, opts) => {
     return `react-native-web/dist/${format}index`;
   } else if (importName && moduleMap[importName]) {
     return `react-native-web/dist/${format}exports/${importName}`;
+  } else if (opts.customMap && opts.customMap[importName]) {
+    return opts.customMap[importName];
   }
 };
 
