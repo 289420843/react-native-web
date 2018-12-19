@@ -124,13 +124,21 @@ export default class ScrollViewBase extends Component<*> {
       ...other
     } = this.props;
     let newChildren = children;
-    const topPlaceholder = (<div style={{width:'1px',height:'1px'}}/>);
-    if(React.isValidElement(children)){
-      const contentChildren  = children.props.children;
-      if(React.Children.count(contentChildren)===1){
-        newChildren = React.cloneElement(children,{},[topPlaceholder,contentChildren,topPlaceholder])
-      }else if(React.Children.count(contentChildren)>1){
-        newChildren = React.cloneElement(children,{},[topPlaceholder,...contentChildren,topPlaceholder])
+    const topPlaceholder = <div style={{ width: '1px', height: '1px' }} />;
+    if (React.isValidElement(children)) {
+      const contentChildren = children.props.children;
+      if (React.Children.count(contentChildren) === 1) {
+        newChildren = React.cloneElement(children, {}, [
+          topPlaceholder,
+          contentChildren,
+          topPlaceholder
+        ]);
+      } else if (React.Children.count(contentChildren) > 1) {
+        newChildren = React.cloneElement(children, {}, [
+          topPlaceholder,
+          ...contentChildren,
+          topPlaceholder
+        ]);
       }
     }
     other.children = newChildren;
@@ -142,7 +150,10 @@ export default class ScrollViewBase extends Component<*> {
         onTouchStart={this._onTouchStart(this.props.onTouchStart)}
         onWheel={this._createPreventableScrollHandler(this.props.onWheel)}
         ref={this._setViewRef}
-        style={StyleSheet.compose(style, !scrollEnabled && styles.scrollDisabled)}
+        style={StyleSheet.compose(
+          style,
+          !scrollEnabled && styles.scrollDisabled
+        )}
       />
     );
   }
@@ -182,7 +193,6 @@ export default class ScrollViewBase extends Component<*> {
       // Weren't scrolling, so we must have just started
       this._handleScrollStart(e);
     }
-    this._changeTop();
   };
 
   _handleScrollStart(e: Object) {
@@ -202,6 +212,7 @@ export default class ScrollViewBase extends Component<*> {
     const { onScroll } = this.props;
     this._state.isScrolling = false;
     if (onScroll) {
+      this._changeTop();
       onScroll(normalizeScrollEvent(e));
     }
   }
@@ -213,13 +224,15 @@ export default class ScrollViewBase extends Component<*> {
   };
 
   _changeTop = () => {
-    const top = this._viewDom.scrollTop;
-    const totalScroll = this._viewDom.scrollHeight;
-    const currentScroll = top + this._viewDom.offsetHeight;
-    if (top === 0) {
-      this._viewDom.scrollTop = 1;
-    } else if (currentScroll === totalScroll) {
-      this._viewDom.scrollTop = top - 1;
+    if (this._viewDom) {
+      const top = this._viewDom.scrollTop;
+      const totalScroll = this._viewDom.scrollHeight;
+      const currentScroll = top + this._viewDom.offsetHeight;
+      if (top === 0) {
+        this._viewDom.scrollTop = 1;
+      } else if (currentScroll === totalScroll) {
+        this._viewDom.scrollTop = top - 1;
+      }
     }
   };
 
