@@ -44,7 +44,6 @@ const normalizeScrollEvent = e => ({
   },
   timeStamp: Date.now()
 });
-
 /**
  * Encapsulates the Web-specific scroll throttling and disabling logic
  */
@@ -72,8 +71,8 @@ export default class ScrollViewBase extends Component<*> {
     scrollEventThrottle: 0
   };
 
-  _debouncedOnScrollEnd = debounce(this._handleScrollEnd, 100);
-  _state = { isScrolling: false, scrollLastTick: 0 };
+  _debouncedOnScrollEnd = debounce(this._handleScrollEnd.bind(this), 100);
+  _state = { isScrolling: false, scrollLastTick: 0, isDragging: false };
 
   setNativeProps(props: Object) {
     if (this._viewRef) {
@@ -146,6 +145,7 @@ export default class ScrollViewBase extends Component<*> {
       <View
         {...other}
         onScroll={this._handleScroll}
+        onTouchEnd={this._onTouchEnd(this.props.onTouchEnd)}
         onTouchMove={this._createPreventableScrollHandler(this.props.onTouchMove)}
         onTouchStart={this._onTouchStart(this.props.onTouchStart)}
         onWheel={this._createPreventableScrollHandler(this.props.onWheel)}
@@ -160,7 +160,15 @@ export default class ScrollViewBase extends Component<*> {
 
   _onTouchStart = (handler: Function) => {
     return (e: Object) => {
+      this._state.isDragging = true;
       this._changeTop();
+      handler(e);
+    };
+  };
+
+  _onTouchEnd = (handler: Function) => {
+    return (e: Object) => {
+      this._state.isDragging = false;
       handler(e);
     };
   };
@@ -210,9 +218,10 @@ export default class ScrollViewBase extends Component<*> {
 
   _handleScrollEnd(e: Object) {
     const { onScroll } = this.props;
-    this._state.isScrolling = false;
-    if (onScroll) {
+    if (!this._state.isDragging) {
       this._changeTop();
+    }
+    if (onScroll) {
       onScroll(normalizeScrollEvent(e));
     }
   }
@@ -220,10 +229,12 @@ export default class ScrollViewBase extends Component<*> {
   _setViewRef = (element: View) => {
     this._viewRef = element;
     this._viewDom = ReactDOM.findDOMNode(this._viewRef);
-    this._changeTop();
+    setTimeout(() => {
+      this._changeTop();
+    }, 30);
   };
 
-  _changeTop = () => {
+  _changeTop = type => {
     if (this._viewDom) {
       const top = this._viewDom.scrollTop;
       const totalScroll = this._viewDom.scrollHeight;
