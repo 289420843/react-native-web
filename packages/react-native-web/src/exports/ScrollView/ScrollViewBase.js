@@ -169,6 +169,9 @@ export default class ScrollViewBase extends Component<*> {
   _onTouchEnd = (handler: Function) => {
     return (e: Object) => {
       this._state.isDragging = false;
+      if (!this._state.isScrolling) {
+        this._changeTop();
+      }
       handler(e);
     };
   };
@@ -218,6 +221,7 @@ export default class ScrollViewBase extends Component<*> {
 
   _handleScrollEnd(e: Object) {
     const { onScroll } = this.props;
+    this._state.isScrolling = false;
     if (!this._state.isDragging) {
       this._changeTop();
     }
