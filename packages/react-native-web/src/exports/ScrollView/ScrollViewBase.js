@@ -71,7 +71,7 @@ export default class ScrollViewBase extends Component<*> {
     scrollEventThrottle: 0
   };
 
-  _debouncedOnScrollEnd = debounce(this._handleScrollEnd.bind(this), 100);
+  _debouncedOnScrollEnd = debounce(this._handleScrollEnd.bind(this), 30);
   _state = { isScrolling: false, scrollLastTick: 0, isDragging: false };
 
   setNativeProps(props: Object) {
@@ -235,7 +235,7 @@ export default class ScrollViewBase extends Component<*> {
     this._viewDom = ReactDOM.findDOMNode(this._viewRef);
     setTimeout(() => {
       this._changeTop();
-    }, 30);
+    }, 20);
   };
 
   _changeTop = type => {
