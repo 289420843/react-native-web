@@ -233,10 +233,16 @@ export default class ScrollViewBase extends Component<*> {
   _setViewRef = (element: View) => {
     this._viewRef = element;
     this._viewDom = ReactDOM.findDOMNode(this._viewRef);
-    setTimeout(() => {
-      this._changeTop();
-    }, 20);
+    // if(element){
+    //   setTimeout(()=>{
+    //       this._changeTop();
+    //   },2000)
+    //   console.warn("@cc 执行了")
+    // }
   };
+  componentDidUpdate() {
+    this._changeTop();
+  }
 
   _changeTop = type => {
     if (this._viewDom) {
