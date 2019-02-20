@@ -35,6 +35,7 @@ const ViewStylePropTypes = {
   /**
    * @platform web
    */
+  backdropFilter: string,
   backgroundAttachment: string,
   backgroundBlendMode: string,
   backgroundClip: string,
@@ -51,6 +52,8 @@ const ViewStylePropTypes = {
   overscrollBehavior: overscrollBehaviorType,
   overscrollBehaviorX: overscrollBehaviorType,
   overscrollBehaviorY: overscrollBehaviorType,
+  scrollSnapAlign: string,
+  scrollSnapType: string,
   WebkitMaskImage: string,
   WebkitOverflowScrolling: oneOf(['auto', 'touch'])
 };

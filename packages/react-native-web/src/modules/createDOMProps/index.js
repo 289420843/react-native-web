@@ -76,6 +76,7 @@ const createDOMProps = (component, props, styleResolver) => {
   const {
     accessibilityLabel,
     accessibilityLiveRegion,
+    accessibilityStates,
     importantForAccessibility,
     nativeID,
     placeholderTextColor,
@@ -104,7 +105,12 @@ const createDOMProps = (component, props, styleResolver) => {
   if (accessibilityLiveRegion && accessibilityLiveRegion.constructor === String) {
     domProps['aria-live'] = accessibilityLiveRegion === 'none' ? 'off' : accessibilityLiveRegion;
   }
-  if (role && role.constructor === String && role !== 'label') {
+  if (Array.isArray(accessibilityStates)) {
+    for (let i = 0; i < accessibilityStates.length; i += 1) {
+      domProps[`aria-${accessibilityStates[i]}`] = true;
+    }
+  }
+  if (role && role.constructor === String) {
     domProps.role = role;
   }
 
@@ -169,7 +175,10 @@ const createDOMProps = (component, props, styleResolver) => {
   if (nativeID && nativeID.constructor === String) {
     domProps.id = nativeID;
   }
-  // Link security and automation test ids
+  // Link security
+  // https://mathiasbynens.github.io/rel-noopener/
+  // Note: using "noreferrer" doesn't impact referrer tracking for https
+  // transfers (i.e., from https to https).
   if (component === 'a' && domProps.target === '_blank') {
     domProps.rel = `${domProps.rel || ''} noopener noreferrer`;
   }
