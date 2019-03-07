@@ -71,7 +71,7 @@ export default class ScrollViewBase extends Component<*> {
     scrollEventThrottle: 0
   };
 
-  _debouncedOnScrollEnd = debounce(this._handleScrollEnd.bind(this), 30);
+  _debouncedOnScrollEnd = debounce(this._handleScrollEnd.bind(this), 100);
   _state = { isScrolling: false, scrollLastTick: 0, isDragging: false };
 
   setNativeProps(props: Object) {
@@ -195,6 +195,9 @@ export default class ScrollViewBase extends Component<*> {
     const { scrollEventThrottle } = this.props;
     // A scroll happened, so the scroll bumps the debounce.
     this._debouncedOnScrollEnd(e);
+    if (!this._state.isDragging) {
+      this._changeTop();
+    }
     if (this._state.isScrolling) {
       // Scroll last tick may have changed, check if we need to notify
       if (this._shouldEmitScrollEvent(this._state.scrollLastTick, scrollEventThrottle)) {
