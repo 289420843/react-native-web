@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,7 +16,7 @@ const TextPropTypes = {
   accessibilityComponentType: string,
   accessibilityLabel: string,
   accessibilityLiveRegion: oneOf(['assertive', 'none', 'polite']),
-  accessibilityRole: oneOf(['button', 'heading', 'label', 'link', 'listitem']),
+  accessibilityRole: oneOf(['button', 'heading', 'label', 'link', 'listitem', 'none']),
   accessibilityTraits: oneOfType([array, string]),
   accessible: bool,
   children: any,
@@ -24,13 +24,19 @@ const TextPropTypes = {
   nativeID: string,
   numberOfLines: number,
   onBlur: func,
-  onContextMenu: func,
   onFocus: func,
   onLayout: func,
   onPress: func,
   selectable: bool,
   style: StyleSheetPropType(TextStylePropTypes),
-  testID: string
+  testID: string,
+  // web extensions
+  onContextMenu: func,
+  itemID: string,
+  itemRef: string,
+  itemProp: string,
+  itemScope: string,
+  itemType: string
 };
 
 export default TextPropTypes;

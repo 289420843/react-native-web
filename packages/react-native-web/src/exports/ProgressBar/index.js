@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-present, Nicolas Gallagher.
+ * Copyright (c) Nicolas Gallagher.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   animation: {
     animationDuration: '1s',
-    animationName: [
+    animationKeyframes: [
       {
         '0%': { transform: [{ translateX: '-100%' }] },
         '100%': { transform: [{ translateX: '400%' }] }

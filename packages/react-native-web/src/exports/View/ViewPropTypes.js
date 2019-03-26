@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,8 @@
 import EdgeInsetsPropType, { type EdgeInsetsProp } from '../EdgeInsetsPropType';
 import StyleSheetPropType from '../../modules/StyleSheetPropType';
 import ViewStylePropTypes from './ViewStylePropTypes';
-import { any, array, bool, func, object, oneOf, oneOfType, string } from 'prop-types';
+import { any, array, arrayOf, bool, func, object, oneOf, oneOfType, string } from 'prop-types';
+import { type StyleObj } from '../StyleSheet/StyleSheetTypes';
 
 const stylePropType = StyleSheetPropType(ViewStylePropTypes);
 
@@ -33,16 +34,17 @@ export type ViewProps = {
   accessibilityLabel?: string,
   accessibilityLiveRegion?: 'none' | 'polite' | 'assertive',
   accessibilityRole?: string,
+  accessibilityStates?: Array<string>,
   accessibilityTraits?: string | Array<string>,
   accessible?: boolean,
   children?: any,
+  className?: string,
   hitSlop?: EdgeInsetsProp,
   importantForAccessibility?: 'auto' | 'yes' | 'no' | 'no-hide-descendants',
   nativeID?: string,
   onBlur?: Function,
   onClick?: Function,
   onClickCapture?: Function,
-  onContextMenu?: Function,
   onFocus?: Function,
   onLayout?: (event: ViewLayoutEvent) => void,
   onResponderGrant?: Function,
@@ -64,8 +66,15 @@ export type ViewProps = {
   onTouchStart?: Function,
   onTouchStartCapture?: Function,
   pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto',
-  style?: stylePropType,
+  style?: StyleObj,
   testID?: string,
+  // web extensions
+  onContextMenu?: Function,
+  itemID?: string,
+  itemRef?: string,
+  itemProp?: string,
+  itemScope?: string,
+  itemType?: string,
   // compatibility with React Native
   accessibilityViewIsModal?: boolean,
   collapsable?: boolean,
@@ -83,6 +92,19 @@ const ViewPropTypes = {
   accessibilityLabel: string,
   accessibilityLiveRegion: oneOf(['assertive', 'none', 'polite']),
   accessibilityRole: string,
+  accessibilityStates: arrayOf(
+    oneOf([
+      'disabled',
+      'selected',
+      /* web-only */
+      'busy',
+      'checked',
+      'expanded',
+      'grabbed',
+      'invalid',
+      'pressed'
+    ])
+  ),
   accessibilityTraits: oneOfType([array, string]),
   accessible: bool,
   children: any,
@@ -92,7 +114,6 @@ const ViewPropTypes = {
   onBlur: func,
   onClick: func,
   onClickCapture: func,
-  onContextMenu: func,
   onFocus: func,
   onLayout: func,
   onMoveShouldSetResponder: func,
@@ -116,6 +137,13 @@ const ViewPropTypes = {
   pointerEvents: oneOf(['auto', 'box-none', 'box-only', 'none']),
   style: stylePropType,
   testID: string,
+  // web extensions
+  onContextMenu: func,
+  itemID: string,
+  itemRef: string,
+  itemProp: string,
+  itemScope: string,
+  itemType: string,
   // compatibility with React Native
   accessibilityViewIsModal: bool,
   collapsable: bool,

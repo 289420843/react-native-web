@@ -1,5 +1,3 @@
-import UnimplementedView from './modules/UnimplementedView';
-
 import createElement from './exports/createElement';
 import findNodeHandle from './exports/findNodeHandle';
 import processColor from './exports/processColor';
@@ -38,7 +36,6 @@ import Vibration from './exports/Vibration';
 
 // components
 import ActivityIndicator from './exports/ActivityIndicator';
-import ART from './exports/ART';
 import Button from './exports/Button';
 import CheckBox from './exports/CheckBox';
 import FlatList from './exports/FlatList';
@@ -74,39 +71,38 @@ import ColorPropType from './exports/ColorPropType';
 import EdgeInsetsPropType from './exports/EdgeInsetsPropType';
 import PointPropType from './exports/PointPropType';
 
-const emptyObject = {};
 // compat (components)
-const DatePickerIOS = UnimplementedView;
-const DrawerLayoutAndroid = UnimplementedView;
-const ImageEditor = UnimplementedView;
-const ImageStore = UnimplementedView;
-const InputAccessoryView = UnimplementedView;
-const MaskedViewIOS = UnimplementedView;
-const NavigatorIOS = UnimplementedView;
-const PickerIOS = Picker;
-const ProgressBarAndroid = UnimplementedView;
-const ProgressViewIOS = UnimplementedView;
-const SegmentedControlIOS = UnimplementedView;
-const SnapshotViewIOS = UnimplementedView;
-const TabBarIOS = UnimplementedView;
-const ToastAndroid = UnimplementedView;
-const ToolbarAndroid = UnimplementedView;
-const ViewPagerAndroid = UnimplementedView;
-const WebView = UnimplementedView;
+import DatePickerIOS from './exports/DatePickerIOS';
+import DrawerLayoutAndroid from './exports/DrawerLayoutAndroid';
+import ImageEditor from './exports/ImageEditor';
+import ImageStore from './exports/ImageStore';
+import InputAccessoryView from './exports/InputAccessoryView';
+import MaskedViewIOS from './exports/MaskedViewIOS';
+import NavigatorIOS from './exports/NavigatorIOS';
+import PickerIOS from './exports/PickerIOS';
+import ProgressBarAndroid from './exports/ProgressBarAndroid';
+import ProgressViewIOS from './exports/ProgressViewIOS';
+import SegmentedControlIOS from './exports/SegmentedControlIOS';
+import SnapshotViewIOS from './exports/SnapshotViewIOS';
+import TabBarIOS from './exports/TabBarIOS';
+import ToastAndroid from './exports/ToastAndroid';
+import ToolbarAndroid from './exports/ToolbarAndroid';
+import ViewPagerAndroid from './exports/ViewPagerAndroid';
+import WebView from './exports/WebView';
 // compat (apis)
-const ActionSheetIOS = emptyObject;
-const AlertIOS = emptyObject;
-const CameraRoll = emptyObject;
-const DatePickerAndroid = emptyObject;
-const ImagePickerIOS = emptyObject;
-const PermissionsAndroid = emptyObject;
-const PushNotificationIOS = emptyObject;
-const Settings = emptyObject;
-const StatusBarIOS = emptyObject;
-const Systrace = emptyObject;
-const TimePickerAndroid = emptyObject;
-const TVEventHandler = emptyObject;
-const VibrationIOS = emptyObject;
+import ActionSheetIOS from './exports/ActionSheetIOS';
+import AlertIOS from './exports/AlertIOS';
+import CameraRoll from './exports/CameraRoll';
+import DatePickerAndroid from './exports/DatePickerAndroid';
+import ImagePickerIOS from './exports/ImagePickerIOS';
+import PermissionsAndroid from './exports/PermissionsAndroid';
+import PushNotificationIOS from './exports/PushNotificationIOS';
+import Settings from './exports/Settings';
+import StatusBarIOS from './exports/StatusBarIOS';
+import Systrace from './exports/Systrace';
+import TimePickerAndroid from './exports/TimePickerAndroid';
+import TVEventHandler from './exports/TVEventHandler';
+import VibrationIOS from './exports/VibrationIOS';
 
 export {
   // top-level API
@@ -147,7 +143,6 @@ export {
   Vibration,
   // components
   ActivityIndicator,
-  ART,
   Button,
   CheckBox,
   FlatList,
@@ -214,112 +209,3 @@ export {
   TVEventHandler,
   VibrationIOS
 };
-
-const ReactNative = {
-  // top-level API
-  createElement,
-  findNodeHandle,
-  render,
-  unmountComponentAtNode,
-  // modules
-  processColor,
-  NativeModules,
-  TextPropTypes,
-  ViewPropTypes,
-  // APIs
-  AccessibilityInfo,
-  Alert,
-  Animated,
-  AppRegistry,
-  AppState,
-  AsyncStorage,
-  BackHandler,
-  Clipboard,
-  DeviceInfo,
-  Dimensions,
-  Easing,
-  I18nManager,
-  InteractionManager,
-  Keyboard,
-  LayoutAnimation,
-  Linking,
-  NativeEventEmitter,
-  NetInfo,
-  PanResponder,
-  PixelRatio,
-  Platform,
-  Share,
-  StyleSheet,
-  UIManager,
-  Vibration,
-  // components
-  ActivityIndicator,
-  ART,
-  Button,
-  CheckBox,
-  FlatList,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  ListView,
-  Modal,
-  Picker,
-  ProgressBar,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  SectionList,
-  Slider,
-  StatusBar,
-  SwipeableFlatList,
-  SwipeableListView,
-  Switch,
-  Text,
-  TextInput,
-  Touchable,
-  TouchableHighlight,
-  TouchableNativeFeedback,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  VirtualizedList,
-  YellowBox,
-  // propTypes
-  ColorPropType,
-  EdgeInsetsPropType,
-  PointPropType,
-  // compat (components)
-  DatePickerIOS,
-  DrawerLayoutAndroid,
-  ImageEditor,
-  ImageStore,
-  InputAccessoryView,
-  MaskedViewIOS,
-  NavigatorIOS,
-  PickerIOS,
-  ProgressBarAndroid,
-  ProgressViewIOS,
-  SegmentedControlIOS,
-  SnapshotViewIOS,
-  TabBarIOS,
-  ToastAndroid,
-  ToolbarAndroid,
-  ViewPagerAndroid,
-  WebView,
-  // compat (apis)
-  ActionSheetIOS,
-  AlertIOS,
-  CameraRoll,
-  DatePickerAndroid,
-  ImagePickerIOS,
-  PermissionsAndroid,
-  PushNotificationIOS,
-  Settings,
-  StatusBarIOS,
-  Systrace,
-  TimePickerAndroid,
-  TVEventHandler,
-  VibrationIOS
-};
-
-export default ReactNative;

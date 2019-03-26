@@ -1,13 +1,13 @@
 /* eslint-disable */
 
 /**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * Based on React 16.3.0
+ * From React 16.3.0
+ * @noflow
  */
 
 import dangerousStyleValue from '../dangerousStyleValue';
@@ -28,8 +28,6 @@ function setValueForStyles(node, styles, getStack) {
       continue;
     }
     const isCustomProperty = styleName.indexOf('--') === 0;
-    const isImportant =
-      typeof styles[styleName] === 'string' && styles[styleName].indexOf('!important') > -1;
     if (process.env.NODE_ENV !== 'production') {
       if (!isCustomProperty) {
         warnValidStyle(styleName, styles[styleName], getStack);
@@ -39,14 +37,9 @@ function setValueForStyles(node, styles, getStack) {
     if (styleName === 'float') {
       styleName = 'cssFloat';
     }
-    if (isCustomProperty || isImportant) {
+    if (isCustomProperty) {
       const name = isCustomProperty ? styleName : hyphenateStyleName(styleName);
-      if (isImportant) {
-        const [value, priority] = styleValue.split('!');
-        style.setProperty(name, value, priority);
-      } else {
-        style.setProperty(name, styleValue);
-      }
+      style.setProperty(name, styleValue);
     } else {
       style[styleName] = styleValue;
     }

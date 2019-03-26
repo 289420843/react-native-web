@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2017-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,8 +15,7 @@ import PickerItem from './PickerItem';
 import PickerItemPropType from './PickerItemPropType';
 import PickerStylePropTypes from './PickerStylePropTypes';
 import StyleSheetPropType from '../../modules/StyleSheetPropType';
-import StyleSheet from '../StyleSheet';
-import TextPropTypes from '../Text/TextPropTypes';
+import StyleSheet, { type StyleObj } from '../StyleSheet';
 import { arrayOf, bool, func, number, oneOfType, string } from 'prop-types';
 import ViewPropTypes, { type ViewProps } from '../ViewPropTypes';
 
@@ -27,10 +26,10 @@ type Props = ViewProps & {
   enabled?: boolean,
   onValueChange?: Function,
   selectedValue?: number | string,
-  style?: pickerStyleType,
+  style?: StyleObj,
   testID?: string,
   /* compat */
-  itemStyle?: TextPropTypes.style,
+  itemStyle?: StyleObj,
   mode?: string,
   prompt?: string
 };

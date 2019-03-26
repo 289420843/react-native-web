@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
+ * Copyright (c) Nicolas Gallagher.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,44 +8,31 @@
  */
 
 import AccessibilityUtil from '../AccessibilityUtil';
+import css from '../../exports/StyleSheet/css';
 import StyleSheet from '../../exports/StyleSheet';
 import styleResolver from '../../exports/StyleSheet/styleResolver';
+import { STYLE_GROUPS } from '../../exports/StyleSheet/constants';
 
 const emptyObject = {};
 
-const resetStyles = StyleSheet.create({
-  ariaButton: {
-    cursor: 'pointer'
+// Reset styles for heading, link, and list DOM elements
+const classes = css.create(
+  {
+    reset: {
+      backgroundColor: 'transparent',
+      color: 'inherit',
+      font: 'inherit',
+      listStyle: 'none',
+      margin: 0,
+      textAlign: 'inherit',
+      textDecoration: 'none'
+    },
+    cursor: {
+      cursor: 'pointer'
+    }
   },
-  button: {
-    appearance: 'none',
-    backgroundColor: 'transparent',
-    color: 'inherit',
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
-    fontStyle: 'inherit',
-    fontVariant: ['inherit'],
-    fontWeight: 'inherit',
-    lineHeight: 'inherit',
-    textAlign: 'inherit'
-  },
-  heading: {
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
-    fontStyle: 'inherit',
-    fontVariant: ['inherit'],
-    fontWeight: 'inherit',
-    lineHeight: 'inherit'
-  },
-  link: {
-    backgroundColor: 'transparent',
-    color: 'inherit',
-    textDecorationLine: 'none'
-  },
-  list: {
-    listStyle: 'none'
-  }
-});
+  STYLE_GROUPS.classicReset
+);
 
 const pointerEventsStyles = StyleSheet.create({
   auto: {
@@ -62,7 +49,7 @@ const pointerEventsStyles = StyleSheet.create({
   }
 });
 
-const defaultStyleResolver = style => styleResolver.resolve(style);
+const defaultStyleResolver = (style, classList) => styleResolver.resolve(style, classList);
 
 const createDOMProps = (component, props, styleResolver) => {
   if (!styleResolver) {
@@ -76,6 +63,9 @@ const createDOMProps = (component, props, styleResolver) => {
   const {
     accessibilityLabel,
     accessibilityLiveRegion,
+    accessibilityStates,
+    classList,
+    className: deprecatedClassName,
     importantForAccessibility,
     nativeID,
     placeholderTextColor,
@@ -104,7 +94,12 @@ const createDOMProps = (component, props, styleResolver) => {
   if (accessibilityLiveRegion && accessibilityLiveRegion.constructor === String) {
     domProps['aria-live'] = accessibilityLiveRegion === 'none' ? 'off' : accessibilityLiveRegion;
   }
-  if (role && role.constructor === String && role !== 'label') {
+  if (Array.isArray(accessibilityStates)) {
+    for (let i = 0; i < accessibilityStates.length; i += 1) {
+      domProps[`aria-${accessibilityStates[i]}`] = true;
+    }
+  }
+  if (role && role.constructor === String) {
     domProps.role = role;
   }
 
@@ -123,6 +118,8 @@ const createDOMProps = (component, props, styleResolver) => {
     importantForAccessibility !== 'no-hide-descendants';
   if (
     role === 'link' ||
+    component === 'a' ||
+    component === 'button' ||
     component === 'input' ||
     component === 'select' ||
     component === 'textarea'
@@ -145,21 +142,37 @@ const createDOMProps = (component, props, styleResolver) => {
   }
 
   // STYLE
-  // Resolve React Native styles to optimized browser equivalent
-  const reactNativeStyle = [
-    component === 'a' && resetStyles.link,
-    component === 'button' && resetStyles.button,
-    role === 'heading' && resetStyles.heading,
-    component === 'ul' && resetStyles.list,
-    role === 'button' && !disabled && resetStyles.ariaButton,
+  const reactNativeStyle = StyleSheet.compose(
     pointerEvents && pointerEventsStyles[pointerEvents],
-    providedStyle,
-    placeholderTextColor && { placeholderTextColor }
+    StyleSheet.compose(
+      providedStyle,
+      placeholderTextColor && { placeholderTextColor }
+    )
+  );
+
+  // Additional style resets for interactive elements
+  const needsCursor = (role === 'button' || role === 'link') && !disabled;
+  const needsReset =
+    component === 'a' ||
+    component === 'button' ||
+    component === 'li' ||
+    component === 'ul' ||
+    role === 'heading';
+  // Classic CSS styles
+  const finalClassList = [
+    deprecatedClassName,
+    needsReset && classes.reset,
+    needsCursor && classes.cursor,
+    classList
   ];
-  const { className, style } = styleResolver(reactNativeStyle);
-  if (className && className.constructor === String) {
-    domProps.className = props.className ? `${props.className} ${className}` : className;
+
+  // Resolve styles
+  const { className, style } = styleResolver(reactNativeStyle, finalClassList);
+
+  if (className != null && className !== '') {
+    domProps.className = className;
   }
+
   if (style) {
     domProps.style = style;
   }
@@ -169,7 +182,10 @@ const createDOMProps = (component, props, styleResolver) => {
   if (nativeID && nativeID.constructor === String) {
     domProps.id = nativeID;
   }
-  // Link security and automation test ids
+  // Link security
+  // https://mathiasbynens.github.io/rel-noopener/
+  // Note: using "noreferrer" doesn't impact referrer tracking for https
+  // transfers (i.e., from https to https).
   if (component === 'a' && domProps.target === '_blank') {
     domProps.rel = `${domProps.rel || ''} noopener noreferrer`;
   }

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,8 +15,9 @@ import InteractionPropTypes from '../../modules/InteractionPropTypes';
 import LayoutPropTypes from '../../modules/LayoutPropTypes';
 import ShadowPropTypes from '../../modules/ShadowPropTypes';
 import TransformPropTypes from '../../modules/TransformPropTypes';
-import { number, oneOf, string } from 'prop-types';
+import { number, oneOf, oneOfType, string } from 'prop-types';
 
+const stringOrNumber = oneOfType([string, number]);
 const overscrollBehaviorType = oneOf(['auto', 'contain', 'none']);
 
 const ViewStylePropTypes = {
@@ -35,6 +36,7 @@ const ViewStylePropTypes = {
   /**
    * @platform web
    */
+  backdropFilter: string,
   backgroundAttachment: string,
   backgroundBlendMode: string,
   backgroundClip: string,
@@ -46,11 +48,15 @@ const ViewStylePropTypes = {
   boxShadow: string,
   clip: string,
   filter: string,
-  outline: string,
   outlineColor: ColorPropType,
+  outlineOffset: stringOrNumber,
+  outlineStyle: string,
+  outlineWidth: stringOrNumber,
   overscrollBehavior: overscrollBehaviorType,
   overscrollBehaviorX: overscrollBehaviorType,
   overscrollBehaviorY: overscrollBehaviorType,
+  scrollSnapAlign: string,
+  scrollSnapType: string,
   WebkitMaskImage: string,
   WebkitOverflowScrolling: oneOf(['auto', 'touch'])
 };

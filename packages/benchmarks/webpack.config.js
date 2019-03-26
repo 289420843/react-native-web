@@ -12,6 +12,9 @@ module.exports = {
     path: path.resolve(appDirectory, 'dist'),
     filename: 'bundle.js'
   },
+  optimization: {
+    minimize: process.env.NODE_ENV === 'production'
+  },
   module: {
     rules: [
       {
@@ -31,7 +34,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: false,
-            presets: babelPreset,
+            presets: [babelPreset],
             plugins: ['styled-jsx/babel']
           }
         }

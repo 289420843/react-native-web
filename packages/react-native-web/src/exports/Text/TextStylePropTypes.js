@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -42,12 +42,12 @@ const TextStylePropTypes = {
   textShadowColor: ColorPropType,
   textShadowOffset: shape({ width: number, height: number }),
   textShadowRadius: number,
+  textTransform: oneOf(['capitalize', 'lowercase', 'none', 'uppercase']),
   writingDirection: oneOf(['auto', 'ltr', 'rtl']),
   /* @platform web */
   textIndent: numberOrString,
   textOverflow: string,
   textRendering: oneOf(['auto', 'geometricPrecision', 'optimizeLegibility', 'optimizeSpeed']),
-  textTransform: oneOf(['capitalize', 'lowercase', 'none', 'uppercase']),
   unicodeBidi: oneOf([
     'normal',
     'bidi-override',
@@ -57,6 +57,7 @@ const TextStylePropTypes = {
     'plaintext'
   ]),
   whiteSpace: string,
+  wordBreak: oneOf(['normal', 'break-all', 'break-word', 'keep-all']),
   wordWrap: string,
   MozOsxFontSmoothing: string,
   WebkitFontSmoothing: string

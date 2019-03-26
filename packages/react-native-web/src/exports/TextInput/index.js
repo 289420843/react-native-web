@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,8 +14,8 @@ import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
 import { Component } from 'react';
 import ColorPropType from '../ColorPropType';
 import createElement from '../createElement';
+import css from '../StyleSheet/css';
 import findNodeHandle from '../findNodeHandle';
-import StyleSheet from '../StyleSheet';
 import StyleSheetPropType from '../../modules/StyleSheetPropType';
 import TextInputStylePropTypes from './TextInputStylePropTypes';
 import TextInputState from '../../modules/TextInputState';
@@ -68,6 +68,8 @@ const setSelection = (node, selection) => {
 
 class TextInput extends Component<*> {
   _node: HTMLInputElement;
+  _nodeHeight: number;
+  _nodeWidth: number;
 
   static displayName = 'TextInput';
 
@@ -144,13 +146,10 @@ class TextInput extends Component<*> {
     keyboardType: 'default',
     multiline: false,
     numberOfLines: 1,
-    secureTextEntry: false,
-    style: emptyObject
+    secureTextEntry: false
   };
 
   static State = TextInputState;
-
-  blur: Function;
 
   clear() {
     this._node.value = '';
@@ -173,13 +172,13 @@ class TextInput extends Component<*> {
 
   render() {
     const {
+      autoComplete,
       autoCorrect,
       editable,
       keyboardType,
       multiline,
       numberOfLines,
       secureTextEntry,
-      style,
       /* eslint-disable */
       blurOnSubmit,
       clearTextOnFocus,
@@ -255,7 +254,11 @@ class TextInput extends Component<*> {
     const component = multiline ? 'textarea' : 'input';
 
     Object.assign(otherProps, {
+      // Browser's treat autocomplete "off" as "on"
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=468153#c164
+      autoComplete: autoComplete === 'off' ? 'noop' : autoComplete,
       autoCorrect: autoCorrect ? 'on' : 'off',
+      classList: [classes.textinput],
       dir: 'auto',
       onBlur: normalizeEventHandler(this._handleBlur),
       onChange: normalizeEventHandler(this._handleChange),
@@ -265,8 +268,7 @@ class TextInput extends Component<*> {
       onSelect: normalizeEventHandler(this._handleSelectionChange),
       readOnly: !editable,
       ref: this._setNode,
-      spellCheck: spellCheck != null ? spellCheck : autoCorrect,
-      style: [styles.initial, style]
+      spellCheck: spellCheck != null ? spellCheck : autoCorrect
     });
 
     if (multiline) {
@@ -286,9 +288,30 @@ class TextInput extends Component<*> {
     }
   };
 
+  _handleContentSizeChange = () => {
+    const { onContentSizeChange, multiline } = this.props;
+    if (multiline && onContentSizeChange) {
+      const newHeight = this._node.scrollHeight;
+      const newWidth = this._node.scrollWidth;
+      if (newHeight !== this._nodeHeight || newWidth !== this._nodeWidth) {
+        this._nodeHeight = newHeight;
+        this._nodeWidth = newWidth;
+        onContentSizeChange({
+          nativeEvent: {
+            contentSize: {
+              height: this._nodeHeight,
+              width: this._nodeWidth
+            }
+          }
+        });
+      }
+    }
+  };
+
   _handleChange = e => {
     const { onChange, onChangeText } = this.props;
     const { text } = e.nativeEvent;
+    this._handleContentSizeChange();
     if (onChange) {
       onChange(e);
     }
@@ -320,14 +343,14 @@ class TextInput extends Component<*> {
     // Backspace, Escape, Tab, Cmd+Enter, and Arrow keys only fire 'keydown'
     // DOM events
     if (
-      e.which === 8 ||
-      e.which === 9 ||
-      (e.which === 13 && e.metaKey) ||
-      e.which === 27 ||
-      e.which === 37 ||
-      e.which === 38 ||
-      e.which === 39 ||
-      e.which === 40
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowUp' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'ArrowDown' ||
+      e.key === 'Backspace' ||
+      e.key === 'Escape' ||
+      (e.key === 'Enter' && e.metaKey) ||
+      e.key === 'Tab'
     ) {
       this._handleKeyPress(e);
     }
@@ -339,46 +362,7 @@ class TextInput extends Component<*> {
     const shouldBlurOnSubmit = blurOnSubmit == null ? blurOnSubmitDefault : blurOnSubmit;
 
     if (onKeyPress) {
-      let keyValue;
-      switch (e.which) {
-        case 8:
-          keyValue = 'Backspace';
-          break;
-        case 9:
-          keyValue = 'Tab';
-          break;
-        case 13:
-          keyValue = 'Enter';
-          break;
-        case 27:
-          keyValue = 'Escape';
-          break;
-        case 32:
-          keyValue = ' ';
-          break;
-        case 37:
-          keyValue = 'ArrowLeft';
-          break;
-        case 38:
-          keyValue = 'ArrowUp';
-          break;
-        case 39:
-          keyValue = 'ArrowRight';
-          break;
-        case 40:
-          keyValue = 'ArrowDown';
-          break;
-        default: {
-          // Trim to only care about the keys that have a textual representation
-          if (e.shiftKey) {
-            keyValue = String.fromCharCode(e.which).trim();
-          } else {
-            keyValue = String.fromCharCode(e.which)
-              .toLowerCase()
-              .trim();
-          }
-        }
-      }
+      const keyValue = e.key;
 
       if (keyValue) {
         e.nativeEvent = {
@@ -393,7 +377,7 @@ class TextInput extends Component<*> {
       }
     }
 
-    if (!e.isDefaultPrevented() && e.which === 13 && !e.shiftKey) {
+    if (!e.isDefaultPrevented() && e.key === 'Enter' && !e.shiftKey) {
       if ((blurOnSubmit || !multiline) && onSubmitEditing) {
         // prevent "Enter" from inserting a newline
         e.preventDefault();
@@ -401,6 +385,7 @@ class TextInput extends Component<*> {
         onSubmitEditing(e);
       }
       if (shouldBlurOnSubmit) {
+        // $FlowFixMe
         this.blur();
       }
     }
@@ -425,21 +410,21 @@ class TextInput extends Component<*> {
 
   _setNode = component => {
     this._node = findNodeHandle(component);
+    if (this._node) {
+      this._handleContentSizeChange();
+    }
   };
 }
 
-const styles = StyleSheet.create({
-  initial: {
+const classes = css.create({
+  textinput: {
     MozAppearance: 'textfield',
     WebkitAppearance: 'none',
     backgroundColor: 'transparent',
-    borderColor: 'black',
+    border: '0 solid black',
     borderRadius: 0,
-    borderStyle: 'solid',
-    borderWidth: 0,
     boxSizing: 'border-box',
-    fontFamily: 'System',
-    fontSize: 14,
+    font: '14px System',
     padding: 0,
     resize: 'none'
   }

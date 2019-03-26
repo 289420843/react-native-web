@@ -34,18 +34,5 @@ describe('components/Text', () => {
     expect(component.contains(children)).toEqual(true);
   });
 
-  test('prop "numberOfLines"');
-
-  test('prop "onPress"', () => {
-    const onPress = e => {};
-    const component = shallow(<Text onPress={onPress} />);
-    expect(component).toMatchSnapshot();
-  });
-
-  test('prop "selectable"', () => {
-    let component = shallow(<Text />);
-    expect(component).toMatchSnapshot();
-    component = shallow(<Text selectable={false} />);
-    expect(component).toMatchSnapshot();
-  });
+  test('prop "numberOfLines"', () => {});
 });

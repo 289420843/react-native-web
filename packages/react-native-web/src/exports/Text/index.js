@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,6 +13,8 @@ import applyNativeMethods from '../../modules/applyNativeMethods';
 import { bool } from 'prop-types';
 import { Component } from 'react';
 import createElement from '../createElement';
+import css from '../StyleSheet/css';
+import warning from 'fbjs/lib/warning';
 import StyleSheet from '../StyleSheet';
 import TextPropTypes from './TextPropTypes';
 
@@ -59,20 +61,29 @@ class Text extends Component<*> {
 
     const { isInAParentText } = this.context;
 
+    if (process.env.NODE_ENV !== 'production') {
+      warning(this.props.className == null, 'Using the "className" prop on <Text> is deprecated.');
+    }
+
     if (onPress) {
       otherProps.accessible = true;
       otherProps.onClick = this._createPressHandler(onPress);
       otherProps.onKeyDown = this._createEnterHandler(onPress);
     }
 
+    otherProps.classList = [
+      this.props.className,
+      classes.text,
+      this.context.isInAParentText === true && classes.textHasAncestor,
+      numberOfLines === 1 && classes.textOneLine,
+      numberOfLines > 1 && classes.textMultiLine
+    ];
     // allow browsers to automatically infer the language writing direction
     otherProps.dir = dir !== undefined ? dir : 'auto';
     otherProps.style = [
-      styles.initial,
-      this.context.isInAParentText === true && styles.isInAParentText,
       style,
+      numberOfLines > 1 && { WebkitLineClamp: numberOfLines },
       selectable === false && styles.notSelectable,
-      numberOfLines === 1 && styles.singleLineStyle,
       onPress && styles.pressable
     ];
 
@@ -97,41 +108,45 @@ class Text extends Component<*> {
   }
 }
 
-const styles = StyleSheet.create({
-  initial: {
+const classes = css.create({
+  text: {
     borderWidth: 0,
     boxSizing: 'border-box',
-    color: 'inherit',
+    color: 'black',
     display: 'inline',
-    fontFamily: 'System',
-    fontSize: 14,
-    fontStyle: 'inherit',
-    fontVariant: ['inherit'],
-    fontWeight: 'inherit',
-    lineHeight: 'inherit',
+    font: '14px System',
     margin: 0,
     padding: 0,
-    textDecorationLine: 'none',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word'
   },
-  isInAParentText: {
-    // inherit parent font styles
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
+  textHasAncestor: {
+    color: 'inherit',
+    font: 'inherit',
     whiteSpace: 'inherit'
   },
+  textOneLine: {
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
+  // See #13
+  textMultiLine: {
+    display: '-webkit-box',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    WebkitBoxOrient: 'vertical'
+  }
+});
+
+const styles = StyleSheet.create({
   notSelectable: {
     userSelect: 'none'
   },
   pressable: {
     cursor: 'pointer'
-  },
-  singleLineStyle: {
-    maxWidth: '100%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
   }
 });
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-present, Nicolas Gallagher.
+ * Copyright (c) Nicolas Gallagher.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,7 +15,6 @@ const roleComponents = {
   complementary: 'aside',
   contentinfo: 'footer',
   form: 'form',
-  label: 'label',
   link: 'a',
   list: 'ul',
   listitem: 'li',
@@ -27,6 +26,11 @@ const roleComponents = {
 const emptyObject = {};
 
 const propsToAccessibilityComponent = (props: Object = emptyObject) => {
+  // special-case for "label" role which doesn't map to an ARIA role
+  if (props.accessibilityRole === 'label') {
+    return 'label';
+  }
+
   const role = propsToAriaRole(props);
   if (role) {
     if (role === 'heading') {

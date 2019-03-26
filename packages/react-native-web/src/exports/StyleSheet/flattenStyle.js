@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2015-present, Nicolas Gallagher.
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Nicolas Gallagher.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,9 +10,7 @@
 
 import ReactNativePropRegistry from '../../modules/ReactNativePropRegistry';
 import invariant from 'fbjs/lib/invariant';
-
-type Atom = number | boolean | Object | Array<?Atom>;
-type StyleObj = Atom;
+import type { StyleObj } from './StyleSheetTypes';
 
 function getStyle(style) {
   if (typeof style === 'number') {
@@ -31,7 +29,6 @@ function flattenStyle(style: ?StyleObj): ?Object {
   }
 
   if (!Array.isArray(style)) {
-    // $FlowFixMe
     return getStyle(style);
   }
 

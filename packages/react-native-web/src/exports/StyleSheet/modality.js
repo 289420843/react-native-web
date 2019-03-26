@@ -19,16 +19,14 @@
  */
 
 import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
-import hash from '../../vendor/hash';
 
-const focusVisibleAttributeName =
-  'data-rn-' +
-  (process.env.NODE_ENV !== 'production' ? 'focusvisible-' : '') +
-  hash('focusvisible');
+const focusVisibleAttributeName = 'data-focusvisible-polyfill';
 
 const rule = `:focus:not([${focusVisibleAttributeName}]){outline: none;}`;
 
-const modality = styleElement => {
+const modality = insertRule => {
+  insertRule(rule);
+
   if (!canUseDOM) {
     return;
   }
@@ -263,8 +261,6 @@ const modality = styleElement => {
     hadKeyboardEvent = false;
     removeInitialPointerMoveListeners();
   }
-
-  styleElement.sheet.insertRule(rule, 0);
 
   document.addEventListener('keydown', onKeyDown, true);
   document.addEventListener('mousedown', onPointerDown, true);
