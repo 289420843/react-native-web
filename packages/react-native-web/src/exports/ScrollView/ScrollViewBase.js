@@ -123,20 +123,23 @@ export default class ScrollViewBase extends Component<*> {
       ...other
     } = this.props;
     let newChildren = children;
-    const topPlaceholder = <div style={{ width: '1px', height: '1px' }} />;
+    const topPlaceholder = <div key={'scroll_view_top'} style={{ width: '1px', height: '1px' }} />;
+    const buttonPlaceholder = (
+      <div key={'scroll_view_button'} style={{ width: '1px', height: '1px' }} />
+    );
     if (React.isValidElement(children)) {
       const contentChildren = children.props.children;
       if (React.Children.count(contentChildren) === 1) {
         newChildren = React.cloneElement(children, {}, [
           topPlaceholder,
           contentChildren,
-          topPlaceholder
+          buttonPlaceholder
         ]);
       } else if (React.Children.count(contentChildren) > 1) {
         newChildren = React.cloneElement(children, {}, [
           topPlaceholder,
           ...contentChildren,
-          topPlaceholder
+          buttonPlaceholder
         ]);
       }
     }
