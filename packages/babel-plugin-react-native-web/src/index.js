@@ -6,6 +6,8 @@ const getDistLocation = (importName, opts) => {
   const format = isCommonJS(opts) ? 'cjs/' : '';
   if (importName === 'index') {
     return `react-native-web/dist/${format}index`;
+  } else if (importName && opts.customMap && opts.customMap[importName]) {
+    return opts.customMap[importName];
   } else if (importName && moduleMap[importName]) {
     return `react-native-web/dist/${format}exports/${importName}`;
   }
