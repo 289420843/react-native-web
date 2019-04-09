@@ -25,13 +25,17 @@ const isReactNativeRequire = (t, node) => {
     t.isIdentifier(init.callee) &&
     init.callee.name === 'require' &&
     init.arguments.length === 1 &&
-    (init.arguments[0].value === 'react-native' || init.arguments[0].value === 'react-native-web')
+    (init.arguments[0].value === 'react-native' ||
+      init.arguments[0].value === 'react-native-web' ||
+      init.arguments[0].value.indexOf('/react-native') > -1)
   );
 };
 
 const isReactNativeModule = ({ source, specifiers }) =>
   source &&
-  (source.value === 'react-native' || source.value === 'react-native-web') &&
+  (source.value === 'react-native' ||
+    source.value === 'react-native-web' ||
+    source.value.indexOf('/react-native') > -1) &&
   specifiers.length;
 
 module.exports = function({ types: t }) {
@@ -117,19 +121,43 @@ module.exports = function({ types: t }) {
             path.replaceWithMultiple(imports);
           } else if (t.isIdentifier(id)) {
             const name = id.name;
-            const importIndex = t.variableDeclaration(path.node.kind, [
-              t.variableDeclarator(
-                t.identifier(name),
-                t.memberExpression(
-                  t.callExpression(t.identifier('require'), [
-                    t.stringLiteral(getDistLocation('index', state.opts))
-                  ]),
-                  t.identifier('default')
-                )
-              )
-            ]);
-
-            path.replaceWith(importIndex);
+            const matchList = path.hub.file.code.match(
+              new RegExp(`(?<=[^a-z,A-Z,0-9,_]${name}\\.)[a-z,A-Z,0-9,_]+`, 'g')
+            );
+            if (matchList && matchList.length > 0) {
+              const moduleNames = {};
+              matchList &&
+                matchList.map(m => {
+                  moduleNames[m] = true;
+                });
+              const keys = Object.keys(moduleNames);
+              keys.map(key => {
+                path.insertBefore(
+                  t.variableDeclaration(path.node.kind, [
+                    t.variableDeclarator(
+                      t.identifier(key),
+                      t.memberExpression(
+                        t.callExpression(t.identifier('require'), [
+                          t.stringLiteral(getDistLocation(key, state.opts))
+                        ]),
+                        t.identifier('default')
+                      )
+                    )
+                  ])
+                );
+              });
+              path.insertBefore(
+                t.variableDeclaration(path.node.kind, [
+                  t.variableDeclarator(
+                    t.identifier(name),
+                    t.objectExpression(
+                      keys.map(key => t.objectProperty(t.identifier(key), t.identifier(key)))
+                    )
+                  )
+                ])
+              );
+            }
+            path.remove();
           }
         }
       }
