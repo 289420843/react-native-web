@@ -122,28 +122,42 @@ module.exports = function({ types: t }) {
           } else if (t.isIdentifier(id)) {
             const name = id.name;
             const matchList = path.hub.file.code.match(
-              new RegExp(`(?<=[^a-z,A-Z,0-9,_]${name}\\.)[a-z,A-Z,0-9,_]+`, 'g')
+              new RegExp(`(?<=[^a-zA-Z0-9_]${name}\\.)[a-zA-Z0-9_]+`, 'g')
             );
             if (matchList && matchList.length > 0) {
               const moduleNames = {};
+              const noFindNames = {};
               matchList &&
                 matchList.map(m => {
-                  moduleNames[m] = true;
+                  if (
+                    moduleMap.hasOwnProperty(m) ||
+                    (state.opts.customMap && state.opts.customMap.hasOwnProperty(m))
+                  ) {
+                    moduleNames[m] = true;
+                  } else {
+                    noFindNames[m] = true;
+                  }
                 });
               const keys = Object.keys(moduleNames);
+              const nokeys = Object.keys(noFindNames);
+              // keys.map(key => {
+              //     path.insertBefore(
+              //         t.variableDeclaration(path.node.kind, [
+              //             t.variableDeclarator(
+              //                 t.identifier(key),
+              //                     t.callExpression(t.identifier('require'), [
+              //                         t.stringLiteral(getDistLocation(key, state.opts))
+              //                     ])
+              //             )
+              //         ])
+              //     );
+              // });
               keys.map(key => {
                 path.insertBefore(
-                  t.variableDeclaration(path.node.kind, [
-                    t.variableDeclarator(
-                      t.identifier(key),
-                      t.memberExpression(
-                        t.callExpression(t.identifier('require'), [
-                          t.stringLiteral(getDistLocation(key, state.opts))
-                        ]),
-                        t.identifier('default')
-                      )
-                    )
-                  ])
+                  t.importDeclaration(
+                    [t.importDefaultSpecifier(t.identifier(key))],
+                    t.stringLiteral(getDistLocation(key, state.opts))
+                  )
                 );
               });
               path.insertBefore(
@@ -151,7 +165,13 @@ module.exports = function({ types: t }) {
                   t.variableDeclarator(
                     t.identifier(name),
                     t.objectExpression(
-                      keys.map(key => t.objectProperty(t.identifier(key), t.identifier(key)))
+                      keys
+                        .map(key => t.objectProperty(t.identifier(key), t.identifier(key)))
+                        .concat(
+                          nokeys.map(key =>
+                            t.objectProperty(t.identifier(key), t.identifier('undefined'))
+                          )
+                        )
                     )
                   )
                 ])
