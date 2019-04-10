@@ -27,7 +27,7 @@ const isReactNativeRequire = (t, node) => {
     init.arguments.length === 1 &&
     (init.arguments[0].value === 'react-native' ||
       init.arguments[0].value === 'react-native-web' ||
-      init.arguments[0].value.indexOf('/react-native') > -1)
+      init.arguments[0].value.endsWith('/react-native'))
   );
 };
 
@@ -35,7 +35,7 @@ const isReactNativeModule = ({ source, specifiers }) =>
   source &&
   (source.value === 'react-native' ||
     source.value === 'react-native-web' ||
-    source.value.indexOf('/react-native') > -1) &&
+    source.value.endsWith('/react-native')) &&
   specifiers.length;
 
 module.exports = function({ types: t }) {
