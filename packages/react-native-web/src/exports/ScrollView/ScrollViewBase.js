@@ -163,6 +163,7 @@ export default class ScrollViewBase extends Component<*> {
 
   _onTouchStart = (handler: Function) => {
     return (e: Object) => {
+      global.scroll___ = true;
       this._state.isDragging = true;
       this._changeTop();
       handler(e);
@@ -181,6 +182,7 @@ export default class ScrollViewBase extends Component<*> {
 
   _createPreventableScrollHandler = (handler: Function) => {
     return (e: Object) => {
+      global.scroll___ = true;
       if (this.props.scrollEnabled) {
         if (handler) {
           handler(e);
@@ -273,3 +275,50 @@ const styles = StyleSheet.create({
     touchAction: 'none'
   }
 });
+const supportsPassive = (function checkPassiveListener() {
+  let supportsPassive_ = false;
+  try {
+    const opts = Object.defineProperty({}, 'passive', {
+      get: function get() {
+        supportsPassive_ = true;
+      }
+    });
+    window.addEventListener('testPassiveListener', null, opts);
+  } catch (e) {
+    // No support
+  }
+  return supportsPassive_;
+})();
+
+document.getElementsByTagName('body')[0].addEventListener(
+  'touchmove',
+  e => {
+    if (global.scroll___) {
+      global.scroll___ = false;
+    } else {
+      e.preventDefault();
+    }
+  },
+  supportsPassive
+    ? {
+        passive: false,
+        capture: false
+      }
+    : false
+);
+document.getElementsByTagName('body')[0].addEventListener(
+  'touchstart',
+  e => {
+    if (global.scroll___) {
+      global.scroll___ = false;
+    } else {
+      e.preventDefault();
+    }
+  },
+  supportsPassive
+    ? {
+        passive: false,
+        capture: false
+      }
+    : false
+);
