@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-present, Nicolas Gallagher.
+ * Copyright (c) Nicolas Gallagher.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,6 @@ import View from '../View';
 import ViewPropTypes from '../ViewPropTypes';
 import React, { Component } from 'react';
 import { bool, func, number } from 'prop-types';
-import ReactDOM from 'react-dom';
 
 const normalizeScrollEvent = e => ({
   nativeEvent: {
@@ -44,6 +43,7 @@ const normalizeScrollEvent = e => ({
   },
   timeStamp: Date.now()
 });
+
 /**
  * Encapsulates the Web-specific scroll throttling and disabling logic
  */
@@ -72,7 +72,7 @@ export default class ScrollViewBase extends Component<*> {
   };
 
   _debouncedOnScrollEnd = debounce(this._handleScrollEnd, 100);
-  _state = { isScrolling: false, scrollLastTick: 0, isDragging: false };
+  _state = { isScrolling: false, scrollLastTick: 0 };
 
   setNativeProps(props: Object) {
     if (this._viewRef) {
@@ -84,7 +84,6 @@ export default class ScrollViewBase extends Component<*> {
     const {
       scrollEnabled,
       style,
-      children,
       /* eslint-disable */
       alwaysBounceHorizontal,
       alwaysBounceVertical,
@@ -122,35 +121,12 @@ export default class ScrollViewBase extends Component<*> {
       /* eslint-enable */
       ...other
     } = this.props;
-    let newChildren = children;
-    const topPlaceholder = <div key={'scroll_view_top'} style={{ width: '1px', height: '1px' }} />;
-    const buttonPlaceholder = (
-      <div key={'scroll_view_button'} style={{ width: '1px', height: '1px' }} />
-    );
-    if (React.isValidElement(children)) {
-      const contentChildren = children.props.children;
-      if (React.Children.count(contentChildren) === 1) {
-        newChildren = React.cloneElement(children, {}, [
-          topPlaceholder,
-          contentChildren,
-          buttonPlaceholder
-        ]);
-      } else if (React.Children.count(contentChildren) > 1) {
-        newChildren = React.cloneElement(children, {}, [
-          topPlaceholder,
-          ...contentChildren,
-          buttonPlaceholder
-        ]);
-      }
-    }
-    other.children = newChildren;
+
     return (
       <View
         {...other}
         onScroll={this._handleScroll}
-        onTouchEnd={this._onTouchEnd(this.props.onTouchEnd)}
         onTouchMove={this._createPreventableScrollHandler(this.props.onTouchMove)}
-        onTouchStart={this._onTouchStart(this.props.onTouchStart)}
         onWheel={this._createPreventableScrollHandler(this.props.onWheel)}
         ref={this._setViewRef}
         style={StyleSheet.compose(
@@ -161,28 +137,8 @@ export default class ScrollViewBase extends Component<*> {
     );
   }
 
-  _onTouchStart = (handler: Function) => {
-    return (e: Object) => {
-      global.scroll___ = true;
-      this._state.isDragging = true;
-      this._changeTop();
-      handler(e);
-    };
-  };
-
-  _onTouchEnd = (handler: Function) => {
-    return (e: Object) => {
-      this._state.isDragging = false;
-      if (!this._state.isScrolling) {
-        this._changeTop();
-      }
-      handler(e);
-    };
-  };
-
   _createPreventableScrollHandler = (handler: Function) => {
     return (e: Object) => {
-      global.scroll___ = true;
       if (this.props.scrollEnabled) {
         if (handler) {
           handler(e);
@@ -200,9 +156,6 @@ export default class ScrollViewBase extends Component<*> {
     const { scrollEventThrottle } = this.props;
     // A scroll happened, so the scroll bumps the debounce.
     this._debouncedOnScrollEnd(e);
-    if (!this._state.isDragging) {
-      this._changeTop();
-    }
     if (this._state.isScrolling) {
       // Scroll last tick may have changed, check if we need to notify
       if (this._shouldEmitScrollEvent(this._state.scrollLastTick, scrollEventThrottle)) {
@@ -230,9 +183,6 @@ export default class ScrollViewBase extends Component<*> {
   _handleScrollEnd(e: Object) {
     const { onScroll } = this.props;
     this._state.isScrolling = false;
-    if (!this._state.isDragging) {
-      this._changeTop();
-    }
     if (onScroll) {
       onScroll(normalizeScrollEvent(e));
     }
@@ -240,25 +190,6 @@ export default class ScrollViewBase extends Component<*> {
 
   _setViewRef = (element: View) => {
     this._viewRef = element;
-    this._viewDom = ReactDOM.findDOMNode(this._viewRef);
-    this._changeTop();
-  };
-
-  componentDidUpdate() {
-    this._changeTop();
-  }
-
-  _changeTop = type => {
-    if (this._viewDom) {
-      const top = this._viewDom.scrollTop;
-      const totalScroll = this._viewDom.scrollHeight;
-      const currentScroll = top + this._viewDom.offsetHeight;
-      if (top === 0) {
-        this._viewDom.scrollTop = 1;
-      } else if (currentScroll === totalScroll) {
-        this._viewDom.scrollTop = top - 1;
-      }
-    }
   };
 
   _shouldEmitScrollEvent(lastTick: number, eventThrottle: number) {
@@ -275,50 +206,3 @@ const styles = StyleSheet.create({
     touchAction: 'none'
   }
 });
-const supportsPassive = (function checkPassiveListener() {
-  let supportsPassive_ = false;
-  try {
-    const opts = Object.defineProperty({}, 'passive', {
-      get: function get() {
-        supportsPassive_ = true;
-      }
-    });
-    window.addEventListener('testPassiveListener', null, opts);
-  } catch (e) {
-    // No support
-  }
-  return supportsPassive_;
-})();
-
-document.getElementsByTagName('body')[0].addEventListener(
-  'touchmove',
-  e => {
-    if (global.scroll___) {
-      global.scroll___ = false;
-    } else {
-      e.preventDefault();
-    }
-  },
-  supportsPassive
-    ? {
-        passive: false,
-        capture: false
-      }
-    : false
-);
-document.getElementsByTagName('body')[0].addEventListener(
-  'touchstart',
-  e => {
-    if (global.scroll___) {
-      global.scroll___ = false;
-    } else {
-      e.preventDefault();
-    }
-  },
-  supportsPassive
-    ? {
-        passive: false,
-        capture: false
-      }
-    : false
-);
