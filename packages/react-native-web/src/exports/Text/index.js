@@ -47,6 +47,7 @@ class Text extends Component<*> {
       allowFontScaling,
       ellipsizeMode,
       lineBreakMode,
+      maxFontSizeMultiplier,
       minimumFontScale,
       onLayout,
       onLongPress,
@@ -110,7 +111,7 @@ class Text extends Component<*> {
 
 const classes = css.create({
   text: {
-    borderWidth: 0,
+    border: '0 solid black',
     boxSizing: 'border-box',
     color: 'black',
     display: 'inline',

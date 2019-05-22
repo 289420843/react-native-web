@@ -144,6 +144,8 @@ export default class ScrollViewBase extends Component<*> {
       }
     }
     other.children = newChildren;
+    const hideScrollbar =
+      showsHorizontalScrollIndicator === false || showsVerticalScrollIndicator === false;
     return (
       <View
         {...other}
@@ -153,10 +155,11 @@ export default class ScrollViewBase extends Component<*> {
         onTouchStart={this._onTouchStart(this.props.onTouchStart)}
         onWheel={this._createPreventableScrollHandler(this.props.onWheel)}
         ref={this._setViewRef}
-        style={StyleSheet.compose(
+        style={[
           style,
-          !scrollEnabled && styles.scrollDisabled
-        )}
+          !scrollEnabled && styles.scrollDisabled,
+          hideScrollbar && styles.hideScrollbar
+        ]}
       />
     );
   }
@@ -271,5 +274,8 @@ export default class ScrollViewBase extends Component<*> {
 const styles = StyleSheet.create({
   scrollDisabled: {
     touchAction: 'none'
+  },
+  hideScrollbar: {
+    scrollbarWidth: 'none'
   }
 });

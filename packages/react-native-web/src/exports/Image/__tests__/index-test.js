@@ -5,8 +5,8 @@ import Image from '../';
 import ImageLoader from '../../../modules/ImageLoader';
 import ImageUriCache from '../ImageUriCache';
 import React from 'react';
+import { shallow } from 'enzyme';
 import StyleSheet from '../../StyleSheet';
-import { mount, shallow } from 'enzyme';
 
 const originalImage = window.Image;
 
@@ -14,6 +14,7 @@ const findImageSurfaceStyle = wrapper => StyleSheet.flatten(wrapper.childAt(0).p
 
 describe('components/Image', () => {
   beforeEach(() => {
+    ImageUriCache._entries = {};
     window.Image = jest.fn(() => ({}));
   });
 
@@ -111,8 +112,8 @@ describe('components/Image', () => {
       });
       const onLoadStub = jest.fn();
       const uri = 'https://test.com/img.jpg';
-      shallow(<Image onLoad={onLoadStub} source={uri} />);
       ImageUriCache.add(uri);
+      shallow(<Image onLoad={onLoadStub} source={uri} />);
       jest.runOnlyPendingTimers();
       expect(ImageLoader.load).not.toBeCalled();
       expect(onLoadStub).toBeCalled();
@@ -120,22 +121,18 @@ describe('components/Image', () => {
     });
 
     test('is called on update if "uri" is different', () => {
-      jest.useFakeTimers();
       const onLoadStub = jest.fn();
       const uri = 'https://test.com/img.jpg';
-      const component = mount(<Image onLoad={onLoadStub} source={uri} />);
+      const component = shallow(<Image onLoad={onLoadStub} source={uri} />);
       component.setProps({ source: 'https://blah.com/img.png' });
-      jest.runOnlyPendingTimers();
       expect(onLoadStub.mock.calls.length).toBe(2);
     });
 
     test('is not called on update if "uri" is the same', () => {
-      jest.useFakeTimers();
       const onLoadStub = jest.fn();
       const uri = 'https://test.com/img.jpg';
-      const component = mount(<Image onLoad={onLoadStub} source={uri} />);
+      const component = shallow(<Image onLoad={onLoadStub} source={uri} />);
       component.setProps({ resizeMode: 'stretch' });
-      jest.runOnlyPendingTimers();
       expect(onLoadStub.mock.calls.length).toBe(1);
     });
   });
@@ -164,6 +161,19 @@ describe('components/Image', () => {
       expect(component.find('img')).toBeUndefined;
     });
 
+    test('is set immediately if the image was preloaded', () => {
+      const uri = 'https://yahoo.com/favicon.ico';
+      ImageLoader.load = jest.fn().mockImplementationOnce((_, onLoad, onError) => {
+        onLoad();
+      });
+      return Image.prefetch(uri).then(() => {
+        const source = { uri };
+        const component = shallow(<Image source={source} />, { disableLifecycleMethods: true });
+        expect(component.find('img').prop('src')).toBe(uri);
+        ImageUriCache.remove(uri);
+      });
+    });
+
     test('is set immediately if the image has already been loaded', () => {
       const uriOne = 'https://google.com/favicon.ico';
       const uriTwo = 'https://twitter.com/favicon.ico';
@@ -171,7 +181,7 @@ describe('components/Image', () => {
       ImageUriCache.add(uriTwo);
 
       // initial render
-      const component = mount(<Image source={{ uri: uriOne }} />);
+      const component = shallow(<Image source={{ uri: uriOne }} />);
       ImageUriCache.remove(uriOne);
       expect(
         component
@@ -192,17 +202,28 @@ describe('components/Image', () => {
     });
 
     test('is correctly updated when missing in initial render', () => {
-      jest.useFakeTimers();
       const uri = 'https://testing.com/img.jpg';
-      const component = mount(<Image />);
+      const component = shallow(<Image />);
       component.setProps({ source: { uri } });
-      jest.runOnlyPendingTimers();
       expect(
         component
           .render()
           .find('img')
           .attr('src')
       ).toBe(uri);
+    });
+
+    test('is correctly updated only when loaded if defaultSource provided', () => {
+      const defaultUri = 'https://testing.com/preview.jpg';
+      const uri = 'https://testing.com/fullSize.jpg';
+      let loadCallback;
+      ImageLoader.load = jest.fn().mockImplementationOnce((_, onLoad, onError) => {
+        loadCallback = onLoad;
+      });
+      const component = shallow(<Image defaultSource={{ uri: defaultUri }} source={{ uri }} />);
+      expect(component.find('img').prop('src')).toBe(defaultUri);
+      loadCallback();
+      expect(component.find('img').prop('src')).toBe(uri);
     });
   });
 
@@ -246,5 +267,18 @@ describe('components/Image', () => {
     const fn = () => {};
     const component = shallow(<Image onResponderGrant={fn} />);
     expect(component.prop('onResponderGrant')).toBe(fn);
+  });
+
+  test('queryCache', () => {
+    const uriOne = 'https://google.com/favicon.ico';
+    const uriTwo = 'https://twitter.com/favicon.ico';
+    ImageUriCache.add(uriOne);
+    ImageUriCache.add(uriTwo);
+    return Image.queryCache([uriOne, uriTwo, 'oops']).then(res => {
+      expect(res).toEqual({
+        [uriOne]: 'disk/memory',
+        [uriTwo]: 'disk/memory'
+      });
+    });
   });
 });
