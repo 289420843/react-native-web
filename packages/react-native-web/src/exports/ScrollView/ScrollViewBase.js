@@ -14,7 +14,10 @@ import ViewPropTypes from '../ViewPropTypes';
 import React, { Component } from 'react';
 import { bool, func, number } from 'prop-types';
 import ReactDOM from 'react-dom';
+import HelpView from './HelpView';
+import $d from './devices';
 
+const isios = $d.device() === 'ios';
 const normalizeScrollEvent = e => ({
   nativeEvent: {
     contentOffset: {
@@ -70,6 +73,24 @@ export default class ScrollViewBase extends Component<*> {
     scrollEnabled: true,
     scrollEventThrottle: 0
   };
+  state = { height: null };
+
+  constructor(props) {
+    super(props);
+    this.onLayout = this.onLayout.bind(this);
+    this.helpRef = this.helpRef.bind(this);
+  }
+
+  helpRef(h) {
+    this.help = h;
+  }
+
+  onLayout(e) {
+    const layout = e.nativeEvent.layout;
+    this.setState({
+      height: layout.height
+    });
+  }
 
   _debouncedOnScrollEnd = debounce(this._handleScrollEnd, 100);
   _state = { isScrolling: false, scrollLastTick: 0, isDragging: false };
@@ -129,19 +150,17 @@ export default class ScrollViewBase extends Component<*> {
     );
     if (React.isValidElement(children)) {
       const contentChildren = children.props.children;
-      if (React.Children.count(contentChildren) === 1) {
-        newChildren = React.cloneElement(children, {}, [
-          topPlaceholder,
-          contentChildren,
-          buttonPlaceholder
-        ]);
-      } else if (React.Children.count(contentChildren) > 1) {
-        newChildren = React.cloneElement(children, {}, [
-          topPlaceholder,
-          ...contentChildren,
-          buttonPlaceholder
-        ]);
-      }
+      const newContentChildren = (
+        <View style={{ minHeight: this.state.height }}>
+          {isios && <HelpView ref={this.helpRef} />}
+          {contentChildren}
+        </View>
+      );
+      newChildren = React.cloneElement(children, {}, [
+        topPlaceholder,
+        newContentChildren,
+        buttonPlaceholder
+      ]);
     }
     other.children = newChildren;
     const hideScrollbar =
@@ -149,6 +168,7 @@ export default class ScrollViewBase extends Component<*> {
     return (
       <View
         {...other}
+        onLayout={this.onLayout}
         onScroll={this._handleScroll}
         onTouchEnd={this._onTouchEnd(this.props.onTouchEnd)}
         onTouchMove={this._createPreventableScrollHandler(this.props.onTouchMove)}
@@ -166,6 +186,7 @@ export default class ScrollViewBase extends Component<*> {
 
   _onTouchStart = (handler: Function) => {
     return (e: Object) => {
+      this.help && this.help.change();
       this._state.isDragging = true;
       this._changeTop();
       handler(e);
