@@ -106,6 +106,7 @@ export default class ScrollViewBase extends Component<*> {
       scrollEnabled,
       style,
       children,
+      horizontal,
       /* eslint-disable */
       alwaysBounceHorizontal,
       alwaysBounceVertical,
@@ -143,26 +144,32 @@ export default class ScrollViewBase extends Component<*> {
       /* eslint-enable */
       ...other
     } = this.props;
-    let newChildren = children;
-    const topPlaceholder = <div key={'scroll_view_top'} style={{ width: '1px', height: '1px' }} />;
-    const buttonPlaceholder = (
-      <div key={'scroll_view_button'} style={{ width: '1px', height: '1px' }} />
-    );
-    if (React.isValidElement(children)) {
-      const contentChildren = children.props.children;
-      const newContentChildren = (
-        <View style={{ minHeight: this.state.height }}>
-          {isios && <HelpView ref={this.helpRef} />}
-          {contentChildren}
-        </View>
+    if (!horizontal) {
+      let newChildren = children;
+      const topPlaceholder = (
+        <div key={'scroll_view_top'} style={{ width: '1px', height: '1px' }} />
       );
-      newChildren = React.cloneElement(children, {}, [
-        topPlaceholder,
-        newContentChildren,
-        buttonPlaceholder
-      ]);
+      const buttonPlaceholder = (
+        <div key={'scroll_view_button'} style={{ width: '1px', height: '1px' }} />
+      );
+      if (React.isValidElement(children)) {
+        const contentChildren = children.props.children;
+        const newContentChildren = (
+          <View style={{ minHeight: this.state.height }}>
+            {isios && <HelpView ref={this.helpRef} />}
+            {contentChildren}
+          </View>
+        );
+        newChildren = React.cloneElement(children, {}, [
+          topPlaceholder,
+          newContentChildren,
+          buttonPlaceholder
+        ]);
+      }
+      other.children = newChildren;
+    } else {
+      other.children = children;
     }
-    other.children = newChildren;
     const hideScrollbar =
       showsHorizontalScrollIndicator === false || showsVerticalScrollIndicator === false;
     return (
@@ -261,9 +268,11 @@ export default class ScrollViewBase extends Component<*> {
   }
 
   _setViewRef = (element: View) => {
-    this._viewRef = element;
-    this._viewDom = ReactDOM.findDOMNode(this._viewRef);
-    this._changeTop();
+    if (!this.props.horizontal) {
+      this._viewRef = element;
+      this._viewDom = ReactDOM.findDOMNode(this._viewRef);
+      this._changeTop();
+    }
   };
 
   componentDidUpdate() {

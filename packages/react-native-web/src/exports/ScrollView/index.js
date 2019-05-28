@@ -222,7 +222,8 @@ const ScrollView = createReactClass({
       onResponderTerminationRequest: this.scrollResponderHandleTerminationRequest,
       onResponderTerminate: this.scrollResponderHandleTerminate,
       onResponderRelease: this.scrollResponderHandleResponderRelease,
-      onResponderReject: this.scrollResponderHandleResponderReject
+      onResponderReject: this.scrollResponderHandleResponderReject,
+      horizontal
     };
 
     const ScrollViewClass = ScrollViewBase;
