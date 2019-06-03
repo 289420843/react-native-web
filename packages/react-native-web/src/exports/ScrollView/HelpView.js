@@ -20,11 +20,11 @@ export default class HelpView extends Component {
   }
 
   componentDidMount() {
-    DeviceEventEmitter.addListener('common_router_change', this.onRouterChange);
+    DeviceEventEmitter.addListener('_common_router_action_before', this.onRouterChange);
   }
 
   componentWillUnmount() {
-    DeviceEventEmitter.removeListener('common_router_change', this.onRouterChange);
+    DeviceEventEmitter.removeListener('_common_router_action_before', this.onRouterChange);
   }
 
   change() {
