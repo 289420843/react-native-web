@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { DeviceEventEmitter } from 'react-native-runweb';
 import View from '../View';
 
 export default class HelpView extends Component {
@@ -11,16 +12,19 @@ export default class HelpView extends Component {
     super(props);
     this.change = this.change.bind(this);
     this.ref_ = this.ref_.bind(this);
+    this.onRouterChange = this.onRouterChange.bind(this);
+  }
+
+  onRouterChange() {
+    this.change();
   }
 
   componentDidMount() {
-    this.timer = setInterval(() => {
-      this.change();
-    }, 200);
+    DeviceEventEmitter.addListener('common_router_change', this.onRouterChange);
   }
 
   componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
+    DeviceEventEmitter.removeListener('common_router_change', this.onRouterChange);
   }
 
   change() {
