@@ -13,6 +13,10 @@ export default class HelpView extends Component {
     this.change = this.change.bind(this);
     this.ref_ = this.ref_.bind(this);
     this.onRouterChange = this.onRouterChange.bind(this);
+
+    setTimeout(() => {
+      this.change();
+    }, 600);
   }
 
   onRouterChange() {
