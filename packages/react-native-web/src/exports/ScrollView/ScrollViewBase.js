@@ -17,7 +17,7 @@ import ReactDOM from 'react-dom';
 import HelpView from './HelpView';
 import $d from './devices';
 
-const isios = $d.device() === 'ios';
+const isIos = $d.device() === 'ios';
 const normalizeScrollEvent = e => ({
   nativeEvent: {
     contentOffset: {
@@ -156,7 +156,7 @@ export default class ScrollViewBase extends Component<*> {
         const contentChildren = children.props.children;
         const newContentChildren = (
           <View style={{ minHeight: this.state.height }}>
-            {isios && <HelpView ref={this.helpRef} />}
+            {isIos && <HelpView ref={this.helpRef} />}
             {contentChildren}
           </View>
         );

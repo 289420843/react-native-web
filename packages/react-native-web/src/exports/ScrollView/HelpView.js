@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DeviceEventEmitter } from 'react-native-runweb';
+import DeviceEventEmitter from 'react-native-runweb/dist/DeviceEventEmitter';
 import View from '../View';
 
 export default class HelpView extends Component {
@@ -20,7 +20,9 @@ export default class HelpView extends Component {
   }
 
   onRouterChange() {
-    this.change();
+    setTimeout(() => {
+      this.change();
+    }, 600);
   }
 
   componentDidMount() {
