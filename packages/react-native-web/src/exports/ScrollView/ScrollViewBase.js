@@ -155,7 +155,7 @@ export default class ScrollViewBase extends Component<*> {
       if (React.isValidElement(children)) {
         const contentChildren = children.props.children;
         const newContentChildren = (
-          <View style={{ minHeight: this.state.height }}>
+          <View key={'scroll_view_content'} style={{ minHeight: this.state.height }}>
             {isIos && <HelpView ref={this.helpRef} />}
             {contentChildren}
           </View>
